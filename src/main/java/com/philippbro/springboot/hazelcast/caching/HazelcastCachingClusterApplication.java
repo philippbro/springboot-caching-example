@@ -3,14 +3,18 @@ package com.philippbro.springboot.hazelcast.caching;
 import static java.lang.String.format;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +28,7 @@ import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -87,12 +92,28 @@ public class HazelcastCachingClusterApplication {
         @Autowired
         HazelcastInstance hazelcastInstance;
 
-        @RequestMapping("/city")
+        @Autowired
+        HazelcastCacheManager hazelcastCacheManager;
+
+        @RequestMapping("/cityStats")
         public String getCityStats() {
             String logFormat = "Cache city config: Eviction: %s, Backups: %s (read: %b), MaxSizePolicy: %s, %s";
 
             MapConfig city = hazelcastInstance.getConfig().getMapConfig("city");
             String formatted = format(logFormat, city.getEvictionPolicy().toString(), city.getBackupCount(), city.isReadBackupData(), city.getMaxSizeConfig().getMaxSizePolicy().toString(), city.getMaxSizeConfig().getSize());
+            log.info(formatted);
+            return formatted;
+        }
+
+        @RequestMapping("/cityCache/{city}")
+        public String getCityValue(@PathVariable String city) {
+            String logFormat = "Cache Entry for Key %s is %s";
+
+            Cache cache = hazelcastCacheManager.getCache("city");
+            String formatted = null;
+            if (cache != null) {
+                formatted = format(logFormat, city, Optional.ofNullable(cache.get(city)).map(ValueWrapper::get).orElse(null));
+            }
             log.info(formatted);
             return formatted;
         }
