@@ -6,11 +6,14 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CityBean {
 
     @Cacheable(cacheNames = "city", key = "#city")
     public String getCity(String city) {
-        System.out.println("CityBean.getCity() called!");
+        log.info("CityBean.getCity() called!");
         try {
             // emulation of slow method
             TimeUnit.SECONDS.sleep(5);
