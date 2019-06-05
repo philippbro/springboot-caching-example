@@ -3,6 +3,7 @@ package com.philippbro.springboot.hazelcast.caching;
 import static java.lang.String.format;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.GroupConfig;
-import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
-import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
@@ -49,6 +48,7 @@ public class HazelcastCachingClusterApplication {
         new SpringApplicationBuilder()
                 .profiles("cluster")
                 .sources(HazelcastCachingClusterApplication.class)
+                .properties(Map.of("server.port", 8091))
                 .run(args);
     }
 
@@ -77,10 +77,10 @@ public class HazelcastCachingClusterApplication {
                 .setEnabled(true);
         networkConfig.setJoin(join);
         config
-            .setGroupConfig(new GroupConfig(groupName, groupPassword))
-            .setNetworkConfig(networkConfig)
-            .setInstanceName("hazelcast-instance")
-            .addMapConfig(CITY_MAP_CONFIG);
+                .setGroupConfig(new GroupConfig(groupName, groupPassword))
+                .setNetworkConfig(networkConfig)
+                .setInstanceName("hazelcast-instance")
+                .addMapConfig(CITY_MAP_CONFIG);
 
         return config;
     }
