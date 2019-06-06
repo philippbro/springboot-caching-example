@@ -22,7 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.config.EvictionConfig;
+import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.GroupConfig;
+import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.config.NearCacheConfig.LocalUpdatePolicy;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +57,12 @@ public class HazelcastCachingClientApplication {
         GroupConfig groupConfig = new GroupConfig(groupName, groupPassword);
         clientConfig.setGroupConfig(groupConfig);
         clientConfig.setNetworkConfig(new ClientNetworkConfig().setAddresses(List.of("localhost")));
+        clientConfig.addNearCacheConfig(new NearCacheConfig()
+                .setName("city")
+                .setInMemoryFormat(InMemoryFormat.OBJECT)
+                .setInvalidateOnChange(true)
+                .setLocalUpdatePolicy(LocalUpdatePolicy.INVALIDATE) // CACHE_ON_UPDATE
+                .setEvictionConfig(new EvictionConfig(Integer.MAX_VALUE, EvictionConfig.MaxSizePolicy.ENTRY_COUNT, EvictionPolicy.LFU)));
         return clientConfig;
     }
 

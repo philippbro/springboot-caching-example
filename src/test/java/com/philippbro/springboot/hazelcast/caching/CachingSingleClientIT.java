@@ -3,21 +3,40 @@ package com.philippbro.springboot.hazelcast.caching;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
+import com.hazelcast.client.impl.HazelcastClientProxy;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
 
-@SpringBootTest
 public class CachingSingleClientIT extends CachingITBase {
+    private static ConfigurableApplicationContext clientContext;
+    private static ConfigurableApplicationContext clusterContext;
 
+    @BeforeClass
+    public static void beforeAllTests() {
+        clusterContext = createClusterApp(8092);
+        clientContext = createClientApp(8090);
+    }
+
+    @AfterClass
+    public static void afterAllTests() {
+        clusterContext.stop();
+        clientContext.stop();
+    }
 
     @Test
     public void testAddCacheEntry() {
         //Given
-        HazelcastCacheManager hazelcastCacheManager = (HazelcastCacheManager) clusterContext.getBean("cacheManager");
-        CityBean cityBean = (CityBean) clientContext.getBean("cityBean");
+        CacheManager hazelcastCacheManager = getCacheManager(clusterContext);
+        CityBean cityBean = getCityBean(clientContext);
         Cache cache = hazelcastCacheManager.getCache("city");
 
         //When
@@ -33,8 +52,8 @@ public class CachingSingleClientIT extends CachingITBase {
     @Test
     public void testUpdateCacheEntry() {
         //Given
-        HazelcastCacheManager hazelcastCacheManager = (HazelcastCacheManager) clusterContext.getBean("cacheManager");
-        CityBean cityBean = (CityBean) clientContext.getBean("cityBean");
+        CacheManager hazelcastCacheManager = getCacheManager(clusterContext);
+        CityBean cityBean = getCityBean(clientContext);
         Cache cache = hazelcastCacheManager.getCache("city");
         cache.put("Berlin", "Berlin");
 
@@ -51,8 +70,8 @@ public class CachingSingleClientIT extends CachingITBase {
     @Test
     public void testDeleteCacheEntry() {
         //Given
-        HazelcastCacheManager hazelcastCacheManager = (HazelcastCacheManager) clusterContext.getBean("cacheManager");
-        CityBean cityBean = (CityBean) clientContext.getBean("cityBean");
+        CacheManager hazelcastCacheManager = getCacheManager(clusterContext);
+        CityBean cityBean = getCityBean(clientContext);
         Cache cache = hazelcastCacheManager.getCache("city");
         cache.put("Berlin", "Berlin");
 
@@ -68,8 +87,8 @@ public class CachingSingleClientIT extends CachingITBase {
     @Test
     public void testUpdateNullCacheEntry() {
         //Given
-        HazelcastCacheManager hazelcastCacheManager = (HazelcastCacheManager) clusterContext.getBean("cacheManager");
-        CityBean cityBean = (CityBean) clientContext.getBean("cityBean");
+        CacheManager hazelcastCacheManager = getCacheManager(clusterContext);
+        CityBean cityBean = getCityBean(clientContext);
         Cache cache = hazelcastCacheManager.getCache("city");
         cache.put("Berlin", "Berlin");
 

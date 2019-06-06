@@ -13,13 +13,7 @@ public class CityBean {
 
     @Cacheable(cacheNames = "city", key = "#city")
     public String getCity(String city) {
-        log.info("CityBean.getCity() called!");
-        try {
-            // emulation of slow method
-            TimeUnit.SECONDS.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        log.info("Uncached: CityBean.getCity() called!");
         return city;
     }
 

@@ -27,6 +27,9 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.impl.proxy.MapProxyImpl;
+import com.hazelcast.monitor.LocalMapStats;
+import com.hazelcast.spring.cache.HazelcastCache;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
 
 import lombok.extern.slf4j.Slf4j;
@@ -62,9 +65,6 @@ public class HazelcastCachingClusterApplication {
         MapConfig CITY_MAP_CONFIG = new MapConfig()
                 .setName("city")
                 .setMaxSizeConfig(spaceForJvm)
-//                .setNearCacheConfig(new NearCacheConfig()
-//                        .setCacheLocalEntries(true)
-//                        .setInMemoryFormat(InMemoryFormat.OBJECT))
                 .setEvictionPolicy(EvictionPolicy.LFU);
 
         // network
